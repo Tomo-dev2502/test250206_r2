@@ -3,87 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>すごろくゲーム</title>
+    <title>無事に出勤できるかRPG</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        .board {
-            display: flex;
-            justify-content: center;
-            margin: 20px;
-        }
-        .cell {
-            width: 50px;
-            height: 50px;
-            border: 1px solid black;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-        .player1 { background-color: lightblue; }
-        .player2 { background-color: lightcoral; }
-        .dice { font-size: 20px; margin: 10px; }
+        body { margin: 0; }
+        canvas { display: block; }
     </style>
 </head>
 <body>
-    <h1>すごろくゲーム</h1>
-    <div class="board" id="board"></div>
-    <button onclick="rollDice()">🎲 サイコロを振る</button>
-    <p class="dice" id="dice-result">サイコロ: 🎲</p>
-    <p id="turn-info">プレイヤー1の番です</p>
 
-    <script>
-        const boardSize = 10;
-        let positions = [0, 0]; // プレイヤーの位置
-        let currentPlayer = 0; // 0: プレイヤー1, 1: プレイヤー2
-        const board = document.getElementById("board");
-
-        function createBoard() {
-            for (let i = 0; i < boardSize; i++) {
-                let cell = document.createElement("div");
-                cell.classList.add("cell");
-                cell.id = "cell-" + i;
-                cell.textContent = i + 1;
-                board.appendChild(cell);
-            }
-            updateBoard();
+<script>
+    const config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+            default: "arcade",
+            arcade: { debug: false }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
         }
+    };
 
-        function rollDice() {
-            let diceRoll = Math.floor(Math.random() * 6) + 1;
-            document.getElementById("dice-result").textContent = "サイコロ: 🎲 " + diceRoll;
-            movePlayer(diceRoll);
+    let player, cursors, statusText;
+    let eventTriggered = false;
+    let gameOver = false;
+
+    const game = new Phaser.Game(config);
+
+    function preload() {
+        this.load.image("background", "https://i.imgur.com/1b32G5i.png"); // 背景画像（適宜変更）
+        this.load.spritesheet("hero", "https://i.imgur.com/ygN3C0T.png", { frameWidth: 32, frameHeight: 48 });
+    }
+
+    function create() {
+        this.add.image(400, 300, "background"); // 背景設定
+        player = this.physics.add.sprite(400, 500, "hero"); // キャラ生成
+        player.setCollideWorldBounds(true);
+
+        cursors = this.input.keyboard.createCursorKeys();
+
+        statusText = this.add.text(20, 20, "出勤を目指せ！", { fontSize: "20px", fill: "#fff" });
+
+        this.time.delayedCall(5000, triggerRandomEvent, [], this); // 5秒後にランダムイベント
+    }
+
+    function update() {
+        if (gameOver) return;
+
+        player.setVelocity(0);
+        if (cursors.left.isDown) {
+            player.setVelocityX(-160);
+        } else if (cursors.right.isDown) {
+            player.setVelocityX(160);
+        } else if (cursors.up.isDown) {
+            player.setVelocityY(-160);
+        } else if (cursors.down.isDown) {
+            player.setVelocityY(160);
         }
+    }
 
-        function movePlayer(diceRoll) {
-            positions[currentPlayer] += diceRoll;
-            if (positions[currentPlayer] >= boardSize - 1) {
-                alert(`プレイヤー${currentPlayer + 1}の勝ち！ 🎉`);
-                resetGame();
-                return;
-            }
-            updateBoard();
-            currentPlayer = currentPlayer === 0 ? 1 : 0;
-            document.getElementById("turn-info").textContent = `プレイヤー${currentPlayer + 1}の番です`;
+    function triggerRandomEvent() {
+        if (eventTriggered) return;
+        eventTriggered = true;
+
+        let events = [
+            { text: "電車が遅延！どうする？", options: ["バスに乗る", "待つ"], correct: "バスに乗る" },
+            { text: "財布を忘れた！どうする？", options: ["家に戻る", "会社にツケで払う"], correct: "家に戻る" },
+            { text: "上司から急な呼び出し！どうする？", options: ["無視する", "すぐ対応する"], correct: "すぐ対応する" }
+        ];
+
+        let selectedEvent = Phaser.Utils.Array.GetRandom(events);
+        let choice = window.prompt(`${selectedEvent.text}\n1: ${selectedEvent.options[0]} \n2: ${selectedEvent.options[1]}`);
+
+        if (choice === "1" && selectedEvent.options[0] === selectedEvent.correct ||
+            choice === "2" && selectedEvent.options[1] === selectedEvent.correct) {
+            statusText.setText("正しい選択！出勤続行");
+            this.time.delayedCall(5000, reachOffice, [], this);
+        } else {
+            statusText.setText("ミス！遅刻...");
+            gameOver = true;
         }
+    }
 
-        function updateBoard() {
-            document.querySelectorAll(".cell").forEach(cell => cell.classList.remove("player1", "player2"));
-            document.getElementById("cell-" + positions[0]).classList.add("player1");
-            document.getElementById("cell-" + positions[1]).classList.add("player2");
-        }
+    function reachOffice() {
+        statusText.setText("無事に出勤成功！お疲れ様！");
+        gameOver = true;
+    }
+</script>
 
-        function resetGame() {
-            positions = [0, 0];
-            currentPlayer = 0;
-            updateBoard();
-            document.getElementById("turn-info").textContent = "プレイヤー1の番です";
-        }
-
-        createBoard();
-    </script>
 </body>
 </html>
