@@ -1,0 +1,25 @@
+body {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    background-color: black;
+    color: white;
+}
+
+.game-board {
+    margin-top: 20px;
+}
+
+.card {
+    font-size: 24px;
+    padding: 10px;
+    margin: 10px;
+    cursor: pointer;
+    background-color: #333;
+    border: 2px solid white;
+    border-radius: 10px;
+    color: white;
+}
+
+.card:hover {
+    background-color: #555;
+}
