@@ -8,9 +8,30 @@
     <style>
         body { margin: 0; }
         canvas { display: block; }
+        #eventBox {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 2px solid black;
+            display: none;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
+
+<div id="eventBox">
+    <p id="eventText">イベント内容</p>
+    <button id="option1">選択肢1</button>
+    <button id="option2">選択肢2</button>
+</div>
 
 <script>
     const config = {
@@ -77,12 +98,25 @@
         ];
 
         let selectedEvent = Phaser.Utils.Array.GetRandom(events);
-        let choice = window.prompt(`${selectedEvent.text}\n1: ${selectedEvent.options[0]} \n2: ${selectedEvent.options[1]}`);
 
-        if (choice === "1" && selectedEvent.options[0] === selectedEvent.correct ||
-            choice === "2" && selectedEvent.options[1] === selectedEvent.correct) {
+        // イベントボックスを表示
+        document.getElementById("eventBox").style.display = "block";
+        document.getElementById("eventText").innerText = selectedEvent.text;
+        document.getElementById("option1").innerText = selectedEvent.options[0];
+        document.getElementById("option2").innerText = selectedEvent.options[1];
+
+        // クリックイベント
+        document.getElementById("option1").onclick = () => checkAnswer(selectedEvent, selectedEvent.options[0]);
+        document.getElementById("option2").onclick = () => checkAnswer(selectedEvent, selectedEvent.options[1]);
+    }
+
+    function checkAnswer(event, chosenOption) {
+        document.getElementById("eventBox").style.display = "none"; // イベントボックスを隠す
+
+        if (chosenOption === event.correct) {
             statusText.setText("正しい選択！出勤続行");
-            this.time.delayedCall(5000, reachOffice, [], this);
+            gameOver = false;
+            setTimeout(reachOffice, 3000);
         } else {
             statusText.setText("ミス！遅刻...");
             gameOver = true;
