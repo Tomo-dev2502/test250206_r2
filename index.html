@@ -8,30 +8,9 @@
     <style>
         body { margin: 0; }
         canvas { display: block; }
-        #eventBox {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border: 2px solid black;
-            display: none;
-        }
-        button {
-            margin: 5px;
-            padding: 10px;
-            font-size: 16px;
-        }
     </style>
 </head>
 <body>
-
-<div id="eventBox">
-    <p id="eventText">イベント内容</p>
-    <button id="option1">選択肢1</button>
-    <button id="option2">選択肢2</button>
-</div>
 
 <script>
     const config = {
@@ -56,20 +35,21 @@
     const game = new Phaser.Game(config);
 
     function preload() {
-        this.load.image("background", "https://i.imgur.com/1b32G5i.png"); // 背景画像（適宜変更）
-        this.load.spritesheet("hero", "https://i.imgur.com/ygN3C0T.png", { frameWidth: 32, frameHeight: 48 });
+        // 🔹 画像URLを別サイトに変更
+        this.load.image("background", "https://upload.wikimedia.org/wikipedia/commons/6/6a/Checkered_background.png");
+        this.load.spritesheet("hero", "https://raw.githubusercontent.com/Tomo-Dev2502/game-assets/main/hero.png", { frameWidth: 32, frameHeight: 48 });
     }
 
     function create() {
-        this.add.image(400, 300, "background"); // 背景設定
-        player = this.physics.add.sprite(400, 500, "hero"); // キャラ生成
+        this.add.image(400, 300, "background");
+        player = this.physics.add.sprite(400, 500, "hero");
         player.setCollideWorldBounds(true);
 
         cursors = this.input.keyboard.createCursorKeys();
 
         statusText = this.add.text(20, 20, "出勤を目指せ！", { fontSize: "20px", fill: "#fff" });
 
-        this.time.delayedCall(5000, triggerRandomEvent, [], this); // 5秒後にランダムイベント
+        this.time.delayedCall(5000, triggerRandomEvent, [], this);
     }
 
     function update() {
@@ -91,41 +71,12 @@
         if (eventTriggered) return;
         eventTriggered = true;
 
-        let events = [
-            { text: "電車が遅延！どうする？", options: ["バスに乗る", "待つ"], correct: "バスに乗る" },
-            { text: "財布を忘れた！どうする？", options: ["家に戻る", "会社にツケで払う"], correct: "家に戻る" },
-            { text: "上司から急な呼び出し！どうする？", options: ["無視する", "すぐ対応する"], correct: "すぐ対応する" }
-        ];
+        statusText.setText("イベント発生！");
 
-        let selectedEvent = Phaser.Utils.Array.GetRandom(events);
-
-        // イベントボックスを表示
-        document.getElementById("eventBox").style.display = "block";
-        document.getElementById("eventText").innerText = selectedEvent.text;
-        document.getElementById("option1").innerText = selectedEvent.options[0];
-        document.getElementById("option2").innerText = selectedEvent.options[1];
-
-        // クリックイベント
-        document.getElementById("option1").onclick = () => checkAnswer(selectedEvent, selectedEvent.options[0]);
-        document.getElementById("option2").onclick = () => checkAnswer(selectedEvent, selectedEvent.options[1]);
-    }
-
-    function checkAnswer(event, chosenOption) {
-        document.getElementById("eventBox").style.display = "none"; // イベントボックスを隠す
-
-        if (chosenOption === event.correct) {
-            statusText.setText("正しい選択！出勤続行");
-            gameOver = false;
-            setTimeout(reachOffice, 3000);
-        } else {
-            statusText.setText("ミス！遅刻...");
+        setTimeout(() => {
+            statusText.setText("無事に出勤成功！");
             gameOver = true;
-        }
-    }
-
-    function reachOffice() {
-        statusText.setText("無事に出勤成功！お疲れ様！");
-        gameOver = true;
+        }, 3000);
     }
 </script>
 
