@@ -3,82 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>無事に出勤できるかRPG</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
-    <style>
-        body { margin: 0; }
-        canvas { display: block; }
-    </style>
+    <title>SPACE FIGHT</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <h1>SPACE FIGHT</h1>
+    <p>カードを選んで対戦しよう！</p>
+    
+    <div class="game-board">
+        <button class="card" onclick="playGame('rock')">🪨 グー</button>
+        <button class="card" onclick="playGame('scissors')">✂️ チョキ</button>
+        <button class="card" onclick="playGame('paper')">📄 パー</button>
+    </div>
+    
+    <p id="result"></p>
 
-<script>
-    const config = {
-        type: Phaser.AUTO,
-        width: 800,
-        height: 600,
-        physics: {
-            default: "arcade",
-            arcade: { debug: false }
-        },
-        scene: {
-            preload: preload,
-            create: create,
-            update: update
-        }
-    };
-
-    let player, cursors, statusText;
-    let eventTriggered = false;
-    let gameOver = false;
-
-    const game = new Phaser.Game(config);
-
-    function preload() {
-        // 🔹 画像URLを別サイトに変更
-        this.load.image("background", "https://upload.wikimedia.org/wikipedia/commons/6/6a/Checkered_background.png");
-        this.load.spritesheet("hero", "https://raw.githubusercontent.com/Tomo-Dev2502/game-assets/main/hero.png", { frameWidth: 32, frameHeight: 48 });
-    }
-
-    function create() {
-        this.add.image(400, 300, "background");
-        player = this.physics.add.sprite(400, 500, "hero");
-        player.setCollideWorldBounds(true);
-
-        cursors = this.input.keyboard.createCursorKeys();
-
-        statusText = this.add.text(20, 20, "出勤を目指せ！", { fontSize: "20px", fill: "#fff" });
-
-        this.time.delayedCall(5000, triggerRandomEvent, [], this);
-    }
-
-    function update() {
-        if (gameOver) return;
-
-        player.setVelocity(0);
-        if (cursors.left.isDown) {
-            player.setVelocityX(-160);
-        } else if (cursors.right.isDown) {
-            player.setVelocityX(160);
-        } else if (cursors.up.isDown) {
-            player.setVelocityY(-160);
-        } else if (cursors.down.isDown) {
-            player.setVelocityY(160);
-        }
-    }
-
-    function triggerRandomEvent() {
-        if (eventTriggered) return;
-        eventTriggered = true;
-
-        statusText.setText("イベント発生！");
-
-        setTimeout(() => {
-            statusText.setText("無事に出勤成功！");
-            gameOver = true;
-        }, 3000);
-    }
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
