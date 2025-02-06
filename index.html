@@ -4,20 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPACE FIGHT</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; background-color: black; color: white; }
+        .game-area { display: flex; justify-content: center; flex-wrap: wrap; }
+        .card { padding: 10px; margin: 5px; cursor: pointer; background-color: gray; border: 2px solid white; }
+        .selected { border: 2px solid yellow; }
+    </style>
 </head>
 <body>
     <h1>SPACE FIGHT</h1>
     <p>カードを選んで対戦しよう！</p>
     
-    <div class="game-board">
-        <button class="card" onclick="playGame('rock')">🪨 グー</button>
-        <button class="card" onclick="playGame('scissors')">✂️ チョキ</button>
-        <button class="card" onclick="playGame('paper')">📄 パー</button>
+    <div>
+        <button onclick="startGame()">ゲーム開始</button>
     </div>
     
+    <h2>手札</h2>
+    <div class="game-area" id="hand"></div>
+    
+    <button onclick="chooseCard()">このカードでじゃんけん！</button>
     <p id="result"></p>
 
-    <script src="script.js"></script>
+    <script>
+        let hand = [];
+        let deck = ["グー", "チョキ", "パー", "グー", "チョキ", "パー", "グー", "チョキ", "パー", "グー"];
+        let selectedCard = null;
+        
+        function startGame() {
+            hand = [deck.pop(), deck.pop(), deck.pop()];
+            updateHand();
+        }
+        
+        function updateHand() {
+            let handDiv = document.getElementById("hand");
+            handDiv.innerHTML = "";
+            hand.forEach((card, index) => {
+                let cardElem = document.createElement("div");
+                cardElem.className = "card";
+                cardElem.textContent = card;
+                cardElem.onclick = () => selectCard(index);
+                handDiv.appendChild(cardElem);
+            });
+        }
+        
+        function selectCard(index) {
+            selectedCard = hand[index];
+            document.querySelectorAll(".card").forEach(el => el.classList.remove("selected"));
+            document.querySelectorAll(".card")[index].classList.add("selected");
+        }
+        
+        function chooseCard() {
+            if (!selectedCard) {
+                alert("カードを選んでください！");
+                return;
+            }
+            let choices = ["グー", "チョキ", "パー"];
+            let enemyCard = choices[Math.floor(Math.random() * choices.length)];
+            let result = determineWinner(selectedCard, enemyCard);
+            document.getElementById("result").textContent = `あなた: ${selectedCard} / 相手: ${enemyCard} → ${result}`;
+        }
+        
+        function determineWinner(player, enemy) {
+            if (player === enemy) return "引き分け！";
+            if ((player === "グー" && enemy === "チョキ") ||
+                (player === "チョキ" && enemy === "パー") ||
+                (player === "パー" && enemy === "グー")) {
+                return "あなたの勝ち！";
+            } else {
+                return "コンピューターの勝ち！";
+            }
+        }
+    </script>
 </body>
 </html>
