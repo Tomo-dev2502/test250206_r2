@@ -9,6 +9,7 @@
         .game-area { display: flex; justify-content: center; flex-wrap: wrap; }
         .card { padding: 10px; margin: 5px; cursor: pointer; background-color: gray; border: 2px solid white; }
         .selected { border: 2px solid yellow; }
+        .discard-pile, .game-mat { margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -22,12 +23,22 @@
     <h2>手札</h2>
     <div class="game-area" id="hand"></div>
     
+    <button onclick="drawAndDiscard()">2枚引いて1枚捨てる</button>
     <button onclick="chooseCard()">このカードでじゃんけん！</button>
+    
+    <h2>ブラックホール（捨て札）</h2>
+    <div class="discard-pile" id="discardPile"></div>
+    
+    <h2>ゲームマット</h2>
+    <div class="game-mat" id="gameMat"></div>
+    
     <p id="result"></p>
 
     <script>
         let hand = [];
         let deck = ["グー", "チョキ", "パー", "グー", "チョキ", "パー", "グー", "チョキ", "パー", "グー"];
+        let discardPile = [];
+        let gameMat = [];
         let selectedCard = null;
         
         function startGame() {
@@ -53,6 +64,23 @@
             document.querySelectorAll(".card")[index].classList.add("selected");
         }
         
+        function drawAndDiscard() {
+            if (deck.length >= 2) {
+                hand.push(deck.pop(), deck.pop());
+                let discardIndex = Math.floor(Math.random() * hand.length);
+                discardPile.push(hand.splice(discardIndex, 1)[0]);
+                updateHand();
+                updateDiscardPile();
+            } else {
+                alert("山札が足りません！");
+            }
+        }
+        
+        function updateDiscardPile() {
+            let discardDiv = document.getElementById("discardPile");
+            discardDiv.innerHTML = discardPile.join(", ");
+        }
+        
         function chooseCard() {
             if (!selectedCard) {
                 alert("カードを選んでください！");
@@ -61,7 +89,18 @@
             let choices = ["グー", "チョキ", "パー"];
             let enemyCard = choices[Math.floor(Math.random() * choices.length)];
             let result = determineWinner(selectedCard, enemyCard);
+            
+            if (result.includes("勝ち")) {
+                gameMat.push(selectedCard);
+                updateGameMat();
+            }
+            
             document.getElementById("result").textContent = `あなた: ${selectedCard} / 相手: ${enemyCard} → ${result}`;
+        }
+        
+        function updateGameMat() {
+            let gameMatDiv = document.getElementById("gameMat");
+            gameMatDiv.innerHTML = gameMat.join(", ");
         }
         
         function determineWinner(player, enemy) {
